@@ -1,8 +1,8 @@
-# UNIX SHELL PROGRAM
+# UNIX Mini SHELL PROGRAM
 
 
 # How does it work?
-> $gcc -o "object $file name" "c language file"
+> $gcc -o "object $file name" myShell.c
 
 ```
 $mv
@@ -15,17 +15,34 @@ $mv unix.c ..
 ```
 
 ```
-$cp
+*$cp
 
 $cp unix.c unix_exam.c
 unix_c to unix_exam.c 복사
 ```
 
+```
+* $clear
+$clear
+
+터미널의 명령행들 모두 clear
+```
+
+```
+* $exit
+$exit
+System exit(0)
+
+```
+
 # What kind of function?
 > $mv
 > $cp
-
+> $exit
+> $clear
 
 # What is the final result?
-> $Unix Shell Program 
+> $Unix Mini Shell Program  
 
+# Who made it?
+> Created by gwan hyeon kim
