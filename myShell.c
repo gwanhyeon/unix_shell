@@ -1,5 +1,4 @@
-//  myShell.c
-//  유닉스 쉘 프로그래밍 Quiz - 2
+//  myShell.c/  유닉스 쉘 프로그래밍 Quiz - 2
 //  List of Unix my Shell Function
 //  $mv, cp, exit, clear
 //  Created by kgh(Gwan Hyeon Kim) on 25/04/2019.
@@ -36,9 +35,15 @@ System exit(0)
 #include <unistd.h>     // 다양한 상수와 자료형 함수 관련 라이브러리
 #include <fcntl.h>      // 파일 입출력 관련 라이브러리
 #include <sys/stat.h>   // 시스템 파일들의 정보 라이브러리
-#define MAX 1024        // 초기값 설정
-char* buf[MAX];         // 저장공간 buf 초기값 MAX
+#include <sys/types.h>
+#include <time.h>
+#include <dirent.h>
+#include <pwd.h>
+#include <grp.h>
 
+
+#define MAX 100        // 초기값 설정
+char* buf[MAX];         // 저장공간 buf 초기값 MAX
 // Function 1. 유닉스 mv 명령어
 void mymv(int argc,char *argv[])
 {
@@ -55,7 +60,7 @@ void mymv(int argc,char *argv[])
                 if((unlink(argv[1]))==0){
                     printf("%s succesfully moved to %s\n",argv[1],argv[2]);
                 }
-                else{
+               else{
                     // argv [1] 파일이 원래 위치에서 링크가 삭제되지 않은경우 에러 표시
                     perror("Link deletion error");
                 }
@@ -115,45 +120,139 @@ void mycp(int argc,char *argv[])
         printf("Error: Enter command followed by file to be copied and destination file\n");
     }
 }
+char* my_getcwd(char* user_name)
+{
+   char* cwd;
+   char* home_path;
+   int str_len;
+   home_path = (char *)malloc(strlen(user_name) + strlen("/home/")) + 1;
+   home_path[strlen(user_name) + strlen("/home/")] = '\0';
+   sprintf(home_path, "/home/%s", user_name);
+   cwd = getcwd(NULL, MAX);
+
+       if(strstr(cwd, home_path) == NULL){
+				
+               return cwd;
+	   }
+		   
+	   else{
+               str_len = strlen(home_path);
+		//	   puts(str_len);
+               cwd[str_len-1] = '~';
+               return &cwd[str_len-1];
+       }
+}
+int mypwd(){
+	char buffer[100];
+	if(getcwd(buffer,sizeof(buffer))){
+		printf("%s\n",buffer);
+	}else{
+		perror("getcwd");
+	}
+	return 0;
+
+}
+
+int mycd(int argc, char *argv[])
+{
+	char cwd[100];
+
+	if(argc!=2) //If the path of the directory is not specified, display a error message.
+	{
+		if(!chdir("/")){
+			//puts(cwd);
+			if(getcwd(cwd,sizeof(cwd)) != NULL){
+					puts(cwd);
+			}
+		}
+
+
+		//}
+
+		//}
+		//printf("Invalid number of arguments\n");
+		return 0; 
+	}
+//	if(!strcmp(argv[0], "\0")){
+//		puts(cwd);
+//	}
+		if(!chdir(argv[1])) //chdir successful, if zero is returned.
+	{
+		//puts(cwd);
+		//printf("Current working directory changed to ");
+		if(getcwd(cwd,sizeof(cwd)) != NULL) // Stores the Current working directory in cwd if NULL is not returned.
+		{
+			puts(cwd);  //Display the current working directory.
+		}
+		else
+		{
+			perror("getcwd"); //Display the error occurred with getcwd.
+		}
+	}
+	else
+	{
+		perror("chdir");  //Display the occur that occurred while trying to change the current working directory.
+	}
+
+	return 0;
+}
+
 int main()
 {
-    char getCommand[MAX];       // 명령을 담기위한 변수
+
+	char getCommand[MAX];       // 명령을 담기위한 변수
     char *tokens[MAX];  // 문자열 토큰을 담기위한 변수
     int cnt;    // 문자 개수 처리(counting variable)
     char *cwd;  // 현재 경로를 받아내기 위한 변수 path
-    char host_name[MAX] = {"",};        // host_name kgh~local
-    char user_name[MAX] = {"",};        // user_name kgh
+    char host_name[MAX];       // host_name kgh~local
+    char user_name[MAX];        // user_name kgh
     int len = MAX;
-    cwd = getcwd(NULL,BUFSIZ);
     getlogin_r(user_name,len);
     gethostname(host_name,len);
-    
-    while(1){ // 명령어를 계속 받기위한 loop
-        cnt=0;
-        // 실제 리눅스 명령어 처럼 처리 (host_name/local path)$
-        printf("%s:%s$ ",host_name,cwd);
-        // 줄바꿈 문자 제거
-        fgets(getCommand,sizeof(getCommand)-1,stdin);
-        tokens[cnt++]=strtok(getCommand," \n"); // argv[1] 인자 추출 하기 위함(Command)
-        
-        while((tokens[cnt++] = strtok(NULL," \n"))); //모든 인수를 명령에 추출하여 토큰에 저장
-        // fgets 함수는 \n를 포함하므로 \n strtok
-        
-        if(!strcmp(tokens[0],"exit")){ // $exit 명령으로 인자가 들어온 경우
-            exit(0); // 해당 myShell 프로그램 시스템 종료
-        }
-        else if(!strcmp(tokens[0],"cp")){ //$cp(copy) 명령으로 인자가 들어온 경우
-            mycp(cnt-1,tokens); // $mycp command 함수 호출
-        }
-        else if(!strcmp(tokens[0],"mv")){// $mymv 명령으로 인자가 들어온 경우
-            mymv(cnt-1,tokens); // $mymv command 함수 호출
-        }
-        else if(!strcmp(tokens[0], "clear")) //$clear 명령으로 인자가 들어온 경우
-        {
-            system("clear");
-        }
-    }
-    return 0;
-}
+// tokenizer
+	while(1){ // 명령어를 계속 받기위한 loop
+		cnt=0;
+		
+		// 실제 리눅스 명령어 처럼 처리 (host_name/local path)$
+		//printf("%s:%s$ ",host_name,cwd);
+		cwd = my_getcwd(user_name);
+		fprintf(stdout,"%s@%s:%s$",user_name,host_name,cwd);
+		// 줄바꿈 문자 제거
+		fgets(getCommand,sizeof(getCommand)-1,stdin);
+		//gets(getCommand);
+		getCommand[strlen(getCommand)-1] = '\0';
+		//fgets(getCommand,sizeof(getCommand)-1,stdin);
+		tokens[cnt++]=strtok(getCommand," "); // argv[1] 인자 추출 하기 위함(Command)
+		// " " 일경우 처리 해주기(Enter)
+		if(tokens[0] != '\0'){
+			while((tokens[cnt++] = strtok(NULL," "))); //모든 인수를 명령에 추출하여 토큰에 저장
+			// fgets 함수는 \n를 포함하므로 \n strtok
+			if(!strcmp(tokens[0],"exit")){ // $exit 명령으로 인자가 들어온 경우
+				exit(0); // 해당 myShell 프로그램 시스템 종료
+			}
+			else if(!strcmp(tokens[0],"cp")){ //$cp(copy) 명령으로 인자가 들어온 경우
+				mycp(cnt-1,tokens); // $mycp command 함수 호출
+			}
+			else if(!strcmp(tokens[0],"mv")){// $mymv 명령으로 인자가 들어온 경우
+				mymv(cnt-1,tokens); // $mymv command 함수 호출
+			}else if(!strcmp(tokens[0],"history")){
 
+			}else if(!strcmp(tokens[0],"pwd")){
+				mypwd();
+			}else if(!strcmp(tokens[0],"cd")){
+				mycd(cnt-1,tokens);			
+			}
+			else if(!strcmp(tokens[0], "clear")) //$clear 명령으로 인자가 들어온 경우
+			{
+				system("clear");
+			}
+		}
+		
+		
+
+
+
+	}
+	return 0;
+}
 
