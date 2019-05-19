@@ -195,6 +195,27 @@ int mycd(int argc, char *argv[])
 
 	return 0;
 }
+void setHistroy(){
+
+
+}
+
+void getHistroy(){
+
+
+}
+void myEcho(char ** args){
+	int i = 1;
+	while (1){
+		// End of arguments
+		if (args[i] == NULL){
+			break;
+		}
+		printf("%s ", args[i]);
+		i++;
+	}
+	printf("\n");
+}
 
 int main()
 {
@@ -206,6 +227,7 @@ int main()
     char host_name[MAX];       // host_name kgh~local
     char user_name[MAX];        // user_name kgh
     int len = MAX;
+	
     getlogin_r(user_name,len);
     gethostname(host_name,len);
 // tokenizer
@@ -240,6 +262,8 @@ int main()
 				mypwd();
 			}else if(!strcmp(tokens[0],"cd")){
 				mycd(cnt-1,tokens);			
+			}else if(!strcmp(tokens[0],"echo")){
+				myEcho(tokens);
 			}
 			else if(!strcmp(tokens[0], "clear")) //$clear 명령으로 인자가 들어온 경우
 			{
