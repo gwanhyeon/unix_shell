@@ -2,7 +2,6 @@
 //  List of Unix my Shell Function
 //  $mv, cp, exit, clear
 //  Created by kgh(Gwan Hyeon Kim) on 25/04/2019.
-//  1723401 김관현
 //  Copyright © 2019 kgh. All rights reserved.
 //
 /*
