@@ -27,7 +27,7 @@ unix_c to unix_exam.c 복사
 $exit
 System exit(0)
 */
-#define _CRT_SECURE_NO_WARNINGS    // st
+#include <string>
 #include <stdio.h>      // 입출력 라이브러리
 #include <stdlib.h>     // 표준 문자열,메모리 라이브러리
 #include <string.h>     // 표준 문자열 라이브러리
@@ -35,23 +35,14 @@ System exit(0)
 #include <fcntl.h>      // 파일 입출력 관련 라이브러리
 #include <sys/stat.h>   // 시스템 파일들의 정보 라이브러리
 #include <sys/types.h>
-#include <sys/wait.h>
 #include <time.h>
 #include <dirent.h>
 #include <pwd.h>
 #include <grp.h>
-#define chop(str) str[strlen(str)-1] = 0x00;
+
+
 #define MAX 100        // 초기값 설정
 char* buf[MAX];         // 저장공간 buf 초기값 MAX
-
-typedef struct _HISTORY{
-	char log[MAX];
-
-}HISTORY;
-
-
-
-
 // Function 1. 유닉스 mv 명령어
 void mymv(int argc,char *argv[])
 {
@@ -94,7 +85,6 @@ void mymv(int argc,char *argv[])
 
 void mycp(int argc,char *argv[])
 {
-	struct stat statBuf;
     int fd1, fd2;
     // 인자의 수가 유효한 경우
     if(argc==3){
@@ -123,9 +113,6 @@ void mycp(int argc,char *argv[])
                 }
             }
         }
-		fstat(fd1,&statBuf);
-		fchmod(fd2,statBuf.st_mode);
-
     }
     // 인자의 수가 잘못된 경우
     else{
@@ -192,28 +179,58 @@ int mycd(int argc, char *argv[])
 	{
 		//puts(cwd);
 		//printf("Current working directory changed to ");
-
-		// sizeof(cwd) + 1 => currently path  
-		if(getcwd(cwd,sizeof(cwd))!=NULL) // Stores the Current working directory in cwd if NULL is not returned.
+		if(getcwd(cwd,sizeof(cwd)) != NULL) // Stores the Current working directory in cwd if NULL is not returned.
 		{
-
-			printf("%s",getcwd(cwd,sizeof(cwd)));
 			puts(cwd);  //Display the current working directory.
 		}
 		else
 		{
-
-			printf("b");
 			perror("getcwd"); //Display the error occurred with getcwd.
 		}
 	}
 	else
 	{
-			printf("c");
 		perror("chdir");  //Display the occur that occurred while trying to change the current working directory.
 	}
 
 	return 0;
+}
+void myhistory(char **argc){
+	
+	
+	int i=0;
+	while(1){
+		if(argc[i] == NULL){
+			break;
+		}
+		printf("%d",i);
+		printf("%s ", argc[i]);
+		i++;
+
+	}
+	printf("\n");
+
+}
+void sethistory(char **argc,int cnt){
+	string cmd[MAX];
+
+
+	cmd[cnt] = argc;
+	//strcpy(cmd[cnt][MAX],**argc);
+	for(int i=0; i<sizeof(cmd); i++){
+		printf("%d ",i);
+		printf("%s ",cmd[i]);
+		printf("\n");
+	}
+//	while(1){
+//		if(argc[i] == NULL){
+//			break;
+//		}
+//		printf("%d ",i);
+//		printf("%s ",argc[i]);
+//		i++;
+//		printf("\n");
+//	}
 }
 
 void myecho(char ** argc){
@@ -227,48 +244,6 @@ void myecho(char ** argc){
 		i++;
 	}
 	printf("\n");
-}
-int mydate()
-{
-	long now, time();
-	char *ctime();
-
-	time (&now); //The value of time in seconds since the Epoch is returned.
-	printf("%s", ctime (&now)); //It  converts the calendar time t into a null-terminated string of the form "Wed Jun 30 21:49:08 1993\n"
-
-
-	return 0;
-}
-
-int mymkdir(int argc,char *argv[])
-{
-
-	if(argc!=2) //If the input is not of the form mkdir pathname, then display error message.
-	{
-		printf("Invalid number of arguments\n");
-		return 0;
-	}
-
-	if(!mkdir(argv[1],0775)){ //Create a directory with the name specified in the argument.
-		printf("%s was created\n",argv[1]);
-	}
-	else{
-		perror("mkdir");//Display the error occurred while trying to create the directory.
-	}
-	return 0;
-}
-int myrmdir(int argc,char *argv[]){
-	if(argc!=2){
-
-		printf("Invalid number\n");
-		return 0;
-	}
-	if(!rmdir(argv[1])){
-		printf("%s\n",argv[1]);
-	}else{
-		perror("rmdir");
-	}
-	return 0;
 }
 int myhelp(char ** args){
 	printf("\nA mini implementation of the Unix Shell by Ashwitha Yadav T.\n");
@@ -294,25 +269,11 @@ int myhelp(char ** args){
 	printf("\n\n");
 	return 1;
 }
-void myls(){
-	system("ls");
-
-}
-void myhistory(HISTORY *history,int history_cnt){
-	for(int i=1; i<history_cnt; i++){
-		printf("%d %s\n",i,history[i].log);
-	}
-
-
-}
 
 int main()
 {
 
-// HISTORY STRUCTURE
-	HISTORY *history = (HISTORY *)malloc(sizeof(HISTORY)*1024);
-
-	char getCommand[MAX];       // 명령을 담기위한 변수
+char getCommand[MAX];       // 명령을 담기위한 변수
     char *tokens[MAX];  // 문자열 토큰을 담기위한 변수
     int cnt;    // 문자 개수 처리(counting variable)
     char *cwd;  // 현재 경로를 받아내기 위한 변수 path
@@ -320,73 +281,66 @@ int main()
     char user_name[MAX];        // user_name kgh
 	char *history_cmd[MAX];
     int len = MAX;
-	int history_cnt=0;
+	int history_cnt;
     getlogin_r(user_name,len);
     gethostname(host_name,len);
-
 // tokenizer
 	while(1){ // 명령어를 계속 받기위한 loop
 		cnt=0;
-		int pid;
+		history_cnt = 0;
 		// 실제 리눅스 명령어 처럼 처리 (host_name/local path)$
+		//printf("%s:%s$ ",host_name,cwd);
 		cwd = my_getcwd(user_name);
 		fprintf(stdout,"%s@%s:%s$",user_name,host_name,cwd);
 		// 줄바꿈 문자 제거
 		fgets(getCommand,sizeof(getCommand)-1,stdin);
 	
+	//	printf("%s",getCommand);
+	//	strcpy(history_cmd[history_cnt][MAX],getCommand);
+		//gets(getCommand);
+		//history_cmd[history_cnt][MAX] =fgets(getCommand,sizeof(getCommand)-1,stdin);
 		getCommand[strlen(getCommand)-1] = '\0';
-		tokens[cnt++]=strtok(getCommand," \n"); // argv[1] 인자 추출 하기 위함(Command)
-		
-
-		strcpy(history[history_cnt].log,getCommand);
-		history_cnt++;
-		//printf("%s",history[history_cnt].log);
-		//strcpy(history_cmd[history_cnt],tokens);	
+		//fgets(getCommand,sizeof(getCommand)-1,stdin);
+		tokens[cnt++]=strtok(getCommand," "); // argv[1] 인자 추출 하기 위함(Command)
 		// " " 일경우 처리 해주기(Enter)
 		if(tokens[0] != '\0'){
-			while((tokens[cnt++] = strtok(NULL," \n"))); //모든 인수를 명령에 추출하여 토큰에 저장
+			while((tokens[cnt++] = strtok(NULL," "))); //모든 인수를 명령에 추출하여 토큰에 저장
 			// fgets 함수는 \n를 포함하므로 \n strtok
 			if(!strcmp(tokens[0],"exit")){ // $exit 명령으로 인자가 들어온 경우
 				exit(0); // 해당 myShell 프로그램 시스템 종료
 			}
 			else if(!strcmp(tokens[0],"cp")){ //$cp(copy) 명령으로 인자가 들어온 경우
-				mycp(cnt-1,tokens);
-	 // $mycp command 함수 호출
+				mycp(cnt-1,tokens); // $mycp command 함수 호출
 			}
 			else if(!strcmp(tokens[0],"mv")){// $mymv 명령으로 인자가 들어온 경우
 				mymv(cnt-1,tokens); // $mymv command 함수 호출
 			}else if(!strcmp(tokens[0],"history")){
 				
-				myhistory(history,history_cnt);
+				//myhistory(tokens);
 			}else if(!strcmp(tokens[0],"pwd")){
 				mypwd();
 			}else if(!strcmp(tokens[0],"cd")){
 				mycd(cnt-1,tokens);			
-			}else if(!strcmp(tokens[0],"mkdir")){
-				mymkdir(cnt-1,tokens);
-			}else if(!strcmp(tokens[0],"rmdir")){
-				myrmdir(cnt-1,tokens);
-			}
-			else if(!strcmp(tokens[0],"echo")){
+			}else if(!strcmp(tokens[0],"echo")){
 				myecho(tokens);
 			}else if(!strcmp(tokens[0],"help")){
 				myhelp(tokens);
-			}else if(!strcmp(tokens[0],"date")){
-
-				mydate();
-			}else if(!strcmp(tokens[0],"ls")){
-				myls();
 
 			}
 			else if(!strcmp(tokens[0], "clear")) //$clear 명령으로 인자가 들어온 경우
 			{
 				system("clear");
 			}
-			//history_cnt++;
+			sethistory(tokens,history_cnt);
+			history_cnt++;
 		}
+		
+		
+		
+
+
+
 	}
 	return 0;
 }
 
-
-// https://www.joinc.co.kr/w/Site/system_programing/Book_LSP/ch05_Process
