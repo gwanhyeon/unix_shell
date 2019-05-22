@@ -1,27 +1,28 @@
 # UNIX PRGORMMING MINI KGH SHELL 
 
 # What kind of Mini Shell function?
-> prompt paht = local path
-> $mv
-> $cp
-> $clear
-> $mkdir
-> $rmdir
-> $help
-> $echo
-> $date
-> $pwd
-> $history 
-> etc. exevp unix system call command 
-> 프롬프트는 현재 local 서버와 동일하게 한다.
-> cd [arg]  인자를 지정하지 않으면 홈 디렉토리로 이동한다.
-> echo [args] 인자를 반향(echo)한다.
-> exit [n] 종료 상태를 n으로 반환하고, 종료한다.
-> history  히스토리 목록을 행 번호와 함께 출력한다
-> pwd 현재 작업 디렉토리를 보여준다. 
-> mkdir, rmdir 디렉터리 생성 및 삭제
-> 나머지 커맨드 라인execpv 명령어 처리
-
+```
+prompt paht = local path
+$mv
+$cp
+$clear
+$mkdir
+$rmdir
+$help
+$echo
+$date
+$pwd
+$history 
+etc. exevp unix system call command 
+프롬프트는 현재 local 서버와 동일하게 한다.
+cd [arg]  인자를 지정하지 않으면 홈 디렉토리로 이동한다.
+echo [args] 인자를 반향(echo)한다.
+exit [n] 종료 상태를 n으로 반환하고, 종료한다.
+history  히스토리 목록을 행 번호와 함께 출력한다
+pwd 현재 작업 디렉토리를 보여준다. 
+mkdir, rmdir 디렉터리 생성 및 삭제
+나머지 커맨드 라인execpv 명령어 처리
+```
 
 # How does it work?
 > $gcc -o "object $file name" myShell.c
