@@ -24,6 +24,21 @@
  $cp unix.c unix_exam.c
  unix_c to unix_exam.c 복사
 
+ * $mkdir
+ mkdir dir1 dir2
+
+ * $rmdir
+ rmdir dir1
+
+ * $echo
+ echo command1 command2
+ 
+ * pwd 
+ pwd 
+
+ * help
+ help
+
  * $exit
  $exit
  System exit(0)
@@ -202,50 +217,41 @@ int mycd(int argc, char *argv[])
 		printf("c");
 		perror("chdir");  //Display the occur that occurred while trying to change the current working directory.
 	}
-
 	return 0;
 }
 
 int mydate(){
-  time_t timer;
-  struct tm *t;
-
-  timer = time(NULL); // 현재 시각을 초 단위로 얻기
-
-  t = localtime(&timer); // 초 단위의 시간을 분리하여 구조체에 넣기
-
-
-  printf("유닉스 타임 (Unix Time): %ld 초\n\n", timer); // 1970년 1월 1일 0시 0분 0초부터 시작하여 현재까지의 초
-
-  printf("현재 년: %d\n",   t->tm_year + 1900);
-  printf("현재 월: %d\n",   t->tm_mon + 1);
-  printf("현재 일: %d\n\n", t->tm_mday);
-
-  printf("현재 시: %d\n",   t->tm_hour);
-  printf("현재 분: %d\n",   t->tm_min);
-  printf("현재 초: %d\n\n", t->tm_sec);
-
-  printf("현재 요일: %d\n", t->tm_wday); // 일요일=0, 월요일=1, 화요일=2, 수요일=3, 목요일=4, 금요일=5, 토요일=6
-  printf("올해 몇 번째 날: %d\n", t->tm_yday); // 1월 1일은 0, 1월 2일은 1
-  printf("서머타임 적용 여부: %d\n", t->tm_isdst); // 0 이면 서머타임 없음
+	time_t timer;
+	struct tm *t;
+	timer = time(NULL); // 현재 시각을 초 단위로 얻기
+	t = localtime(&timer); // 초 단위의 시간을 분리하여 구조체에 넣기
+	printf("유닉스 타임 (Unix Time): %ld 초\n\n", timer); // 1970년 1월 1일 0시 0분 0초부터 시작하여 현재까지의 초
+	printf("현재 년: %d\n",   t->tm_year + 1900);
+	printf("현재 월: %d\n",   t->tm_mon + 1);
+	printf("현재 일: %d\n\n", t->tm_mday);
+	printf("현재 시: %d\n",   t->tm_hour);
+	printf("현재 분: %d\n",   t->tm_min);
+	printf("현재 초: %d\n\n", t->tm_sec);
+	printf("현재 요일: %d\n", t->tm_wday); // 일요일=0, 월요일=1, 화요일=2, 수요일=3, 목요일=4, 금요일=5, 토요일=6
+	printf("올해 몇 번째 날: %d\n", t->tm_yday); // 1월 1일은 0, 1월 2일은 1
+	printf("서머타임 적용 여부: %d\n", t->tm_isdst); // 0 이면 서머타임 없음
 	//long now, time();
 	//char *ctime();
-
 	//time (&now); //The value of time in seconds since the Epoch is returned.
 	//printf("%s", ctime (&now)); //It  converts the calendar time t into a null-terminated string of the form "Wed Jun 30 21:49:08 1993\n"
 	return 0;
 }
 void myecho(char ** argc){
-    int i = 1;
-    while (1){
-        // End of arguments
-        if (argc[i] == NULL){
-            break;
-        }
-        printf("%s ", argc[i]);
-        i++;
-    }
-    printf("\n");
+	int i = 1;
+	while (1){
+		// End of arguments
+		if (argc[i] == NULL){
+			break;
+		}
+		printf("%s ", argc[i]);
+		i++;
+	}
+	printf("\n");
 }
 int mymkdir(int argc,char *argv[])
 {
@@ -292,33 +298,25 @@ int myhelp(char ** args){
 	printf("\n\t- rm file1 [file2 ...]");
 	printf("\n\t- mkdir dir1 [dir2 ...]");
 	printf("\n\t- rmdir dir1 [dir2 ...]");
-	printf("\n\t- ln [-s] source target");
 	printf("\n\t- cat [file1 file2 ...]");
 	printf("\n\n");
 	printf("Other features : ");
-	printf("\n\t* Input, Output and Error Redirection (<, <<, >, >>, 2>, 2>> respectively)  : ");
 	printf("\n\t* Example: ls -i >> outfile 2> errfile [Space mandatory around redirection operators!]");
 	printf("\n\n");
 	return 1;
 }
 void myls(){
 	system("ls");
-
 }
 void myhistory(HISTORY *history,int history_cnt){
 	for(int i=0; i<history_cnt; i++){
 		printf("%d %s\n",i+1,history[i].log);
 	}
-
-
 }
-
 int main()
 {
-
 	// HISTORY STRUCTURE
 	HISTORY *history = (HISTORY *)malloc(sizeof(HISTORY)*1024);
-
 	char getCommand[MAX];       // 명령을 담기위한 변수
 	char *tokens[MAX];  // 문자열 토큰을 담기위한 변수
 	int cnt;    // 문자 개수 처리(counting variable)
@@ -342,22 +340,16 @@ int main()
 			fprintf(stdout,"%s@%s:%s$",user_name,host_name,cwd);
 			// 줄바꿈 문자 제거
 			fgets(getCommand,sizeof(getCommand)-1,stdin);
-
 			getCommand[strlen(getCommand)-1] = '\0';
 			tokens[cnt++]=strtok(getCommand," \n"); // argv[1] 인자 추출 하기 위함(Command)
 			while((tokens[cnt++] = strtok(NULL," \n"))); //모든 인수를 명령에 추출하여 토큰에 저장
-				
+
 		}while(tokens[0] == '\0');
 		tokens[cnt] = (char *)NULL;
-
 		tf = 0;
-		//for(int i=0; i<cnt; i++){
-		//	printf("%s", tokens[i]);
-		//}
-
 		strcpy(history[history_cnt++].log,getCommand);
 		if(!strcmp(tokens[0],"pwd") || !strcmp(tokens[0],"cd")|| !strcmp(tokens[0],"mkdir") || !strcmp(tokens[0],"rmdir")|| !strcmp(tokens[0],"echo")||
-				!strcmp(tokens[0],"help")|| !strcmp(tokens[0],"clear") || !strcmp(tokens[0],"exit")) {
+				!strcmp(tokens[0],"help")|| !strcmp(tokens[0],"clear") || !strcmp(tokens[0],"exit") ) {
 			if(!strcmp(tokens[0],"history")){
 				myhistory(history,history_cnt);
 			}else if(!strcmp(tokens[0],"pwd")){
@@ -372,7 +364,8 @@ int main()
 			}
 			else if(!strcmp(tokens[0],"echo")){
 				myecho(tokens);
-			}else if(!strcmp(tokens[0],"help")){
+			}
+			else if(!strcmp(tokens[0],"help")){
 				myhelp(tokens);
 			}
 			else if(!strcmp(tokens[0], "clear")) //$clear 명령으로 인자가 들어온 경우
@@ -383,10 +376,8 @@ int main()
 				exit(0); // 해당 myShell 프로그램 시스템 종료
 			}
 			tf = 1;
-
 		}
 		else if(tf ==0 ){
-
 			childPid = fork();
 			if(childPid > 0) {  // 부모 프로세스
 				pid_t waitPid;
@@ -403,8 +394,6 @@ int main()
 				else if(WIFSIGNALED(status)) {
 					printf("wait : 자식 프로세스 비정상 종료 %d\n",WTERMSIG(status));
 				}
-
-
 				printf("부모 종료 %d %d\n",waitPid,WTERMSIG(status));
 			}
 			else if(childPid == 0){
@@ -432,20 +421,14 @@ int main()
 						perror("execve");	
 						//	memset(childPid);
 					}
-
 				}
 			}
 			else{
 				perror("자식생성에 실패하였습니다. \n");
 				return -1;
 			}
-
-
-
 		}
 	}	
 	return 0;
 }
-
-
 // https://www.joinc.co.kr/w/Site/system_programing/Book_LSP/ch05_Process
