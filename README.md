@@ -2,7 +2,7 @@
 
 # What kind of Mini Shell function?
 ```
-prompt paht = local path
+prompt path = local path
 $mv
 $cp
 $clear
@@ -25,7 +25,7 @@ mkdir, rmdir 디렉터리 생성 및 삭제
 ```
 
 # How does it work?
-> $gcc -o "object $file name" myShell.c
+## $gcc -o "object $file name" myShell.c
 
 ```
 $mv
@@ -78,7 +78,7 @@ $clear
 ```
 
 ```
-* $exit
+$exit
 $exit
 System exit(0)
 
