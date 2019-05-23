@@ -42,7 +42,7 @@ int mycd(int argc, char *argv[])
             // sizeof(cwd)f 의 경우 - 현재경로의 이전경로 ex) cd
             // 변경된 작업 디렉터리를 cwd에 저장한다.
             if(getcwd(cwd,sizeof(cwd)) != NULL){
-                puts(cwd);  // 변경된 작업 디렉터리 경로 출력
+              //  puts(cwd);  // 변경된 작업 디렉터리 경로 출력
             }
         }
         return 0;
@@ -53,8 +53,8 @@ int mycd(int argc, char *argv[])
         // sizeof(cwd)+1 의 경우 일 경우 - 현재 경로
         // sizeof(cwd)f 의 경우 - 현재경로의 이전경로 ex) cd ..)
         if(getcwd(cwd,sizeof(cwd))!=NULL){
-            printf("%s",getcwd(cwd,sizeof(cwd)));
-            puts(cwd);  // 변경된 디렉터리 경로 출력
+           // printf("%s",getcwd(cwd,sizeof(cwd)));
+           // puts(cwd);  // 변경된 디렉터리 경로 출력
         }else{
             perror("getcwd"); // getcwd를 사용 하였을 경우 발생한 오류 처리
         }
@@ -185,9 +185,12 @@ int main()
     int tf;         // 지정된 mv,cp,date 기능 이외에는 부모,자식 프로세스 생성 및 종료를 막기 위한 tf 변수
     
     char *local_path;       // execl() 실행을 하기위한 local_path를 저장해놓기 위한 변수
-    local_path = my_getcwd(user_name);      //명령어 시작전 현재 프로그램 실행 cwd경로를 local_path에 저장
-    
-    
+   // local_path = my_getcwd(user_name);      //명령어 시작전 현재 프로그램 실행 cwd경로를 local_path에 저장
+   // printf("%s",local_path);   
+    local_path = (char *)malloc(strlen(user_name) + strlen("/home/")) + 1;   // 홈 경로 malloc 동적 할당(유저 이름+ home)길이 만큼, +1 NULL 사이즈 만큼
+    local_path[strlen(user_name) + strlen("/home/")] = '\0'; // home_path에 NULL값 추가
+    sprintf(local_path, "/home/%s", user_name);   //배열버퍼에 홈 경로에 /home/user_name을 추가 하여 저장한다.
+ 
     // MINI SHELL SCRIPT 프로그램 실행 부분 - 명령어를 계속 받기위한 반복문
     while(1){
         // 실제 리눅스 명령어 처럼 처리 (host_name/local path)$
@@ -215,7 +218,7 @@ int main()
         tf = 0; // 매번 명령어 마다 지정된 mv,cp,date 기능 이외에는 부모,자식 프로세스 생성 및 종료를 막기 위한 tf 변수처리 하기위한 초기화
         strcpy(history[history_cnt++].log,getCommand);  // 입력된 명령어 history 구조체에 값 복사
         
-		printf("%c[1;32m",27);
+		//printf("%c[1;32m",27);
         // pwd, cd, mkdir, rmdir, echo, help ,clear, exit 명령일 경우 조건 처리
         if(!strcmp(tokens[0],"pwd") || !strcmp(tokens[0],"cd")|| !strcmp(tokens[0],"mkdir") || !strcmp(tokens[0],"rmdir")|| !strcmp(tokens[0],"echo")||
            !strcmp(tokens[0],"help")|| !strcmp(tokens[0],"clear") || !strcmp(tokens[0],"exit") || !strcmp(tokens[0],"history")) {
@@ -269,7 +272,7 @@ int main()
 			if(childPid > 0) {
 
 				pid_t waitPid;
-				printf("Parent PID : %ld, pid : %d %d \n",(long)getpid(),childPid, errno);
+				//printf("Parent PID : %ld, pid : %d %d \n",(long)getpid(),childPid, errno);
 
 				// // 에러 발생시 명시적으로 처리하고, wait 함수를 재호출
 				while((((waitPid = wait(&status)) == -1) && errno == EINTR));
@@ -279,13 +282,13 @@ int main()
 				}
 				// 자식 프로세스 정상 종료WIFEXITED(statloc) 매크로가 true를 반환
 				if(WIFEXITED(status)) {
-					printf("wait-Child Process Succeed(1) Exit %d\n",WEXITSTATUS(status));
+					//printf("wait-Child Process Succeed(1) Exit %d\n",WEXITSTATUS(status));
 				}
 				// 자식 프로세스 비정상 종료 - WIFSIGNALED(statloc) 매크로가 true를 반환
 				else if(WIFSIGNALED(status)) {
-					printf("wait-Child Process Faild(1) Exit %d\n",WTERMSIG(status));
+					//printf("wait-Child Process Faild(1) Exit %d\n",WTERMSIG(status));
 				}
-				printf("Parent Exit %d %d\n",waitPid,WTERMSIG(status));
+				//printf("Parent Exit %d %d\n",waitPid,WTERMSIG(status));
 			}
 			// 자식프로세스 일 경우
 			else if(childPid == 0){
@@ -304,8 +307,8 @@ int main()
 						perror("execlp");
 					}
 
-					printf("Child PID : %ld \n",(long)getpid());    // 자식 프로세스 PID 출력
-					printf("Child Exit\n"); // 자식 프로세스 종료 출력
+					//printf("Child PID : %ld \n",(long)getpid());    // 자식 프로세스 PID 출력
+					//printf("Child Exit\n"); // 자식 프로세스 종료 출력
 					exit(2); // 실행중인 현재 프로세스를 종료하는 시스템 콜 함수
 				}
 				else if(!strcmp(tokens[0],"mv")){// $mymv 명령으로 인자가 들어온 경우
@@ -316,8 +319,8 @@ int main()
 						perror("execl");
 					}
 
-					printf("Child PID : %ld \n",(long)getpid());    // 자식 프로세스 PID 출력
-					printf("Child Exit\n"); // 자식 프로세스 종료 출력
+					//printf("Child PID : %ld \n",(long)getpid());    // 자식 프로세스 PID 출력
+					//printf("Child Exit\n"); // 자식 프로세스 종료 출력
 					exit(2); // 실행중인 현재 프로세스를 종료하는 시스템 콜 함수
 				}
 				else if(!strcmp(tokens[0],"date")){
@@ -328,8 +331,8 @@ int main()
 						perror("date");
 					}
 
-					printf("Child PID : %ld \n",(long)getpid());    // 자식 프로세스 PID 출력
-					printf("Child Exit\n");     // 자식 프로세스 종료 출력
+					//printf("Child PID : %ld \n",(long)getpid());    // 자식 프로세스 PID 출력
+					//printf("Child Exit\n");     // 자식 프로세스 종료 출력
 					exit(2); // 실행중인 현재 프로세스를 종료하는 시스템 콜 함수
 				}
 				else{
