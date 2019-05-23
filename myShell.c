@@ -21,6 +21,7 @@
 #include <errno.h>      // Error 처리 라이브러리
 #define MAX 100         // MAX 상수
 
+
 // History 명령어 저장하기 위한 구조체
 typedef struct _HISTORY{
     char log[MAX];
@@ -193,7 +194,15 @@ int main()
         do{
             cnt=0;      // 토큰 처리하기 위한 카운팅 변수
             cwd = my_getcwd(user_name);     // 현재 작업경로를 계속해서 출력해주기 위해 cwd에 저장
-            fprintf(stdout,"%s@%s:%s$",user_name,host_name,cwd);    // command 라인에서 현재 경로를 출력하면서 입력할 수 있도록 하기 위한 처리
+			printf("%c[1;34m",27);
+            fprintf(stdout,"%s@",user_name);    // command 라인에서 현재 경로를 출력하면서 입력할 수 있도록 하기 위한 >처리
+            fprintf(stdout,"%s",host_name);    // command 라인에서 현재 경로를 출력하면서 입력할 수 있도록 하기 위한 처리    
+            printf("%c[1;37m",27);
+            fprintf(stdout,":");        
+            printf("%c[1;36m",27);
+            fprintf(stdout,"%s",cwd);    // command 라인에서 현재 경로를 출력하면서 입력할 수 있도록 하기 위한 처리
+            printf("%c[1;37m",27);
+            fprintf(stdout,"$");    
             // 줄바꿈 문자 제거
             fgets(getCommand,sizeof(getCommand)-1,stdin);       //명령어 한줄 입력 받음. "\n"줄바꿈 제거
             getCommand[strlen(getCommand)-1] = '\0';            // 문자열 끝에 '\0\ 추가
@@ -206,6 +215,7 @@ int main()
         tf = 0; // 매번 명령어 마다 지정된 mv,cp,date 기능 이외에는 부모,자식 프로세스 생성 및 종료를 막기 위한 tf 변수처리 하기위한 초기화
         strcpy(history[history_cnt++].log,getCommand);  // 입력된 명령어 history 구조체에 값 복사
         
+		printf("%c[1;32m",27);
         // pwd, cd, mkdir, rmdir, echo, help ,clear, exit 명령일 경우 조건 처리
         if(!strcmp(tokens[0],"pwd") || !strcmp(tokens[0],"cd")|| !strcmp(tokens[0],"mkdir") || !strcmp(tokens[0],"rmdir")|| !strcmp(tokens[0],"echo")||
            !strcmp(tokens[0],"help")|| !strcmp(tokens[0],"clear") || !strcmp(tokens[0],"exit") ) {
@@ -258,6 +268,7 @@ int main()
             
             // 부모 프로세스
             if(childPid > 0) {
+				
                 pid_t waitPid;
                 printf("Parent PID : %ld, pid : %d %d \n",(long)getpid(),childPid, errno);
                 
@@ -279,6 +290,7 @@ int main()
             }
             // 자식프로세스 일 경우
             else if(childPid == 0){
+				
                 if(!strcmp(tokens[0],"cp")){
                     // 현재 작업 경로에 실행파일인 mycp를 가져오기 위한 경로 재설정
                     sprintf(local_path,"%s/%s",local_path,"mycp");
@@ -286,6 +298,7 @@ int main()
                     if(execl(local_path,"mycp",tokens[1],tokens[2], (char *)NULL) == -1){
                         perror("execlp");
                     }
+
                     printf("Child PID : %ld \n",(long)getpid());    // 자식 프로세스 PID 출력
                     printf("Child Exit\n"); // 자식 프로세스 종료 출력
                     exit(2); // 실행중인 현재 프로세스를 종료하는 시스템 콜 함수
@@ -297,6 +310,7 @@ int main()
                     if(execl(local_path,"mymv",tokens[1],tokens[2], (char *)NULL) == -1){
                         perror("execl");
                     }
+
                     printf("Child PID : %ld \n",(long)getpid());    // 자식 프로세스 PID 출력
                     printf("Child Exit\n"); // 자식 프로세스 종료 출력
                     exit(2); // 실행중인 현재 프로세스를 종료하는 시스템 콜 함수
@@ -308,6 +322,7 @@ int main()
                     if(execl(local_path,"mydate",tokens[1],tokens[2],(char *)NULL) == -1){
                         perror("date");
                     }
+
                     printf("Child PID : %ld \n",(long)getpid());    // 자식 프로세스 PID 출력
                     printf("Child Exit\n");     // 자식 프로세스 종료 출력
                     exit(2); // 실행중인 현재 프로세스를 종료하는 시스템 콜 함수
