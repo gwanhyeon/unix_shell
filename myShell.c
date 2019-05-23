@@ -33,7 +33,7 @@ int mycd(int argc, char *argv[])
     // 경로를 담기위한 cwd 변수
     char cwd[MAX];
     // 디렉토리 경로가 지정되지 않은 경우(cd [arg] 인자 지정하지 않은경우 "/"루트 경로로 이동
-    if(argc!=2)
+    if(argc!=2 || !strcmp(argv[1],"~") || !strcmp(argv[1],"$HOME") || !strcmp(argv[1],"/"))
     {
         // 작업 디렉터리 루트 경로로 지정 한다.
         if(!chdir("/")){
@@ -188,8 +188,8 @@ int main()
    // local_path = my_getcwd(user_name);      //명령어 시작전 현재 프로그램 실행 cwd경로를 local_path에 저장
    // printf("%s",local_path);   
     local_path = (char *)malloc(strlen(user_name) + strlen("/home/")) + 1;   // 홈 경로 malloc 동적 할당(유저 이름+ home)길이 만큼, +1 NULL 사이즈 만큼
-    local_path[strlen(user_name) + strlen("/home/")] = '\0'; // home_path에 NULL값 추가
-    sprintf(local_path, "/home/%s", user_name);   //배열버퍼에 홈 경로에 /home/user_name을 추가 하여 저장한다.
+    local_path[strlen(user_name) + strlen("/home/")] = '\0'; // local_path에 NULL값 추가
+    sprintf(local_path, "/home/%s", user_name);   //배열버퍼에 로컬  경로에 /home/user_name을 추가 하여 저장한다.
  
     // MINI SHELL SCRIPT 프로그램 실행 부분 - 명령어를 계속 받기위한 반복문
     while(1){
@@ -271,7 +271,7 @@ int main()
 			// 부모 프로세스
 			if(childPid > 0) {
 
-				pid_t waitPid;
+				pid_t waitPid; // 기다리는 waitPid 생성
 				//printf("Parent PID : %ld, pid : %d %d \n",(long)getpid(),childPid, errno);
 
 				// // 에러 발생시 명시적으로 처리하고, wait 함수를 재호출
@@ -337,8 +337,8 @@ int main()
 				}
 				else{
 					if(execvp(tokens[0],tokens) == -1){
-						printf("-bash: %s: command not found\n", tokens[0]);       // execvp() 에러 출력
-						exit(2);
+						printf("-bash: %s: command not found\n", tokens[0]);       // 잘못된 인자값일 경우 에러 출력
+						exit(2); //실행중인 현재 프로세스를 종료하는 시스템 콜 함수
 
 					}
 				}
