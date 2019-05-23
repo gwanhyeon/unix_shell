@@ -218,7 +218,7 @@ int main()
 		printf("%c[1;32m",27);
         // pwd, cd, mkdir, rmdir, echo, help ,clear, exit 명령일 경우 조건 처리
         if(!strcmp(tokens[0],"pwd") || !strcmp(tokens[0],"cd")|| !strcmp(tokens[0],"mkdir") || !strcmp(tokens[0],"rmdir")|| !strcmp(tokens[0],"echo")||
-           !strcmp(tokens[0],"help")|| !strcmp(tokens[0],"clear") || !strcmp(tokens[0],"exit") ) {
+           !strcmp(tokens[0],"help")|| !strcmp(tokens[0],"clear") || !strcmp(tokens[0],"exit") || !strcmp(tokens[0],"history")) {
             
             // history 함수 조건 처리
             if(!strcmp(tokens[0],"history")){
@@ -259,85 +259,94 @@ int main()
             tf = 1;         // 직접 구현한 기능을 처리 했을 경우 다음 조건을 처리하지 않기 위한 설정
         }
         // execl mv,cp,date 함수 실행,이외에 execvp 내장명령어 실행 처리
-        else if(tf ==0 ){
-            
-            // fork() 성공 시 : 부모 프로세스에서는 자식 프로세스의 PID값을 반환 받음, 자식 프로세스에서는 0 값을 반환 받음
-            // fork() 실패 시 : -1 반환
-            childPid = fork();
-            // fork 함수를 호출하는 프로세스는 부모 프로세스가 되고 새롭게 생성되는 프로세스는 자식 프로세스
-            
-            // 부모 프로세스
-            if(childPid > 0) {
-				
-                pid_t waitPid;
-                printf("Parent PID : %ld, pid : %d %d \n",(long)getpid(),childPid, errno);
-                
-                // // 에러 발생시 명시적으로 처리하고, wait 함수를 재호출
-                while((((waitPid = wait(&status)) == -1) && errno == EINTR));
-                if(waitPid == -1) {
-                    printf("Error Number : %d \n",errno);
-                    perror("wait Error");
-                }
-                // 자식 프로세스 정상 종료WIFEXITED(statloc) 매크로가 true를 반환
-                if(WIFEXITED(status)) {
-                    printf("wait-Child Process Succeed(1) Exit %d\n",WEXITSTATUS(status));
-                }
-                // 자식 프로세스 비정상 종료 - WIFSIGNALED(statloc) 매크로가 true를 반환
-                else if(WIFSIGNALED(status)) {
-                    printf("wait-Child Process Faild(1) Exit %d\n",WTERMSIG(status));
-                }
-                printf("Parent Exit %d %d\n",waitPid,WTERMSIG(status));
-            }
-            // 자식프로세스 일 경우
-            else if(childPid == 0){
-				
-                if(!strcmp(tokens[0],"cp")){
-                    // 현재 작업 경로에 실행파일인 mycp를 가져오기 위한 경로 재설정
-                    sprintf(local_path,"%s/%s",local_path,"mycp");
-                    // 현재 작업 경로에 mycp 실행파일을 가져와서 명령어 실행
-                    if(execl(local_path,"mycp",tokens[1],tokens[2], (char *)NULL) == -1){
-                        perror("execlp");
-                    }
+		else if(tf ==0){
 
-                    printf("Child PID : %ld \n",(long)getpid());    // 자식 프로세스 PID 출력
-                    printf("Child Exit\n"); // 자식 프로세스 종료 출력
-                    exit(2); // 실행중인 현재 프로세스를 종료하는 시스템 콜 함수
-                }
-                else if(!strcmp(tokens[0],"mv")){// $mymv 명령으로 인자가 들어온 경우
-                    // 현재 작업 경로에 실행파일인 mymv를 가져오기 위한 경로 재설정
-                    sprintf(local_path,"%s/%s",local_path,"mymv");
-                    // 현재 작업 경로에 mymv 실행파일을 가져와서 명령어 실행
-                    if(execl(local_path,"mymv",tokens[1],tokens[2], (char *)NULL) == -1){
-                        perror("execl");
-                    }
+			// fork() 성공 시 : 부모 프로세스에서는 자식 프로세스의 PID값을 반환 받음, 자식 프로세스에서는 0 값을 반환 받음
+			// fork() 실패 시 : -1 반환
+			childPid = fork();
+			// fork 함수를 호출하는 프로세스는 부모 프로세스가 되고 새롭게 생성되는 프로세스는 자식 프로세스
+			// 부모 프로세스
+			if(childPid > 0) {
 
-                    printf("Child PID : %ld \n",(long)getpid());    // 자식 프로세스 PID 출력
-                    printf("Child Exit\n"); // 자식 프로세스 종료 출력
-                    exit(2); // 실행중인 현재 프로세스를 종료하는 시스템 콜 함수
-                }
-                else if(!strcmp(tokens[0],"date")){
-                    // 현재 작업 경로에 실행파일인 date를 가져오기 위한 경로 재설정
-                    sprintf(local_path,"%s/%s",local_path,"mydate");
-                    // 현재 작업 경로에 date 실행파일을 가져와서 명령어 실행
-                    if(execl(local_path,"mydate",tokens[1],tokens[2],(char *)NULL) == -1){
-                        perror("date");
-                    }
+				pid_t waitPid;
+				printf("Parent PID : %ld, pid : %d %d \n",(long)getpid(),childPid, errno);
 
-                    printf("Child PID : %ld \n",(long)getpid());    // 자식 프로세스 PID 출력
-                    printf("Child Exit\n");     // 자식 프로세스 종료 출력
-                    exit(2); // 실행중인 현재 프로세스를 종료하는 시스템 콜 함수
-                }
-                else{
-                    if(execvp(tokens[0],tokens) == -1){
-                        perror("execvp");       // execvp() 에러 출력
-                    }
-                }
-            }
-            else{
-                perror("Child Process falied \n");      // 프로세스 생성 실패 에러 출력
-                return -1;
-            }
-        }
-    }
-    return 0;
+				// // 에러 발생시 명시적으로 처리하고, wait 함수를 재호출
+				while((((waitPid = wait(&status)) == -1) && errno == EINTR));
+				if(waitPid == -1) {
+					printf("Error Number : %d \n",errno);
+					perror("wait Error");
+				}
+				// 자식 프로세스 정상 종료WIFEXITED(statloc) 매크로가 true를 반환
+				if(WIFEXITED(status)) {
+					printf("wait-Child Process Succeed(1) Exit %d\n",WEXITSTATUS(status));
+				}
+				// 자식 프로세스 비정상 종료 - WIFSIGNALED(statloc) 매크로가 true를 반환
+				else if(WIFSIGNALED(status)) {
+					printf("wait-Child Process Faild(1) Exit %d\n",WTERMSIG(status));
+				}
+				printf("Parent Exit %d %d\n",waitPid,WTERMSIG(status));
+			}
+			// 자식프로세스 일 경우
+			else if(childPid == 0){
+
+				// 프로세스 실제로 자식 프로세스 생성 되서 점유하고 있는지 확인 하기 위함  주석
+				/*
+				for(int i=0;i<10;i++) {
+					sleep(1);
+				}
+				*/
+				if(!strcmp(tokens[0],"cp")){
+					// 현재 작업 경로에 실행파일인 mycp를 가져오기 위한 경로 재설정
+					sprintf(local_path,"%s/%s",local_path,"mycp");
+					// 현재 작업 경로에 mycp 실행파일을 가져와서 명령어 실행
+					if(execl(local_path,"mycp",tokens[1],tokens[2], (char *)NULL) == -1){
+						perror("execlp");
+					}
+
+					printf("Child PID : %ld \n",(long)getpid());    // 자식 프로세스 PID 출력
+					printf("Child Exit\n"); // 자식 프로세스 종료 출력
+					exit(2); // 실행중인 현재 프로세스를 종료하는 시스템 콜 함수
+				}
+				else if(!strcmp(tokens[0],"mv")){// $mymv 명령으로 인자가 들어온 경우
+					// 현재 작업 경로에 실행파일인 mymv를 가져오기 위한 경로 재설정
+					sprintf(local_path,"%s/%s",local_path,"mymv");
+					// 현재 작업 경로에 mymv 실행파일을 가져와서 명령어 실행
+					if(execl(local_path,"mymv",tokens[1],tokens[2], (char *)NULL) == -1){
+						perror("execl");
+					}
+
+					printf("Child PID : %ld \n",(long)getpid());    // 자식 프로세스 PID 출력
+					printf("Child Exit\n"); // 자식 프로세스 종료 출력
+					exit(2); // 실행중인 현재 프로세스를 종료하는 시스템 콜 함수
+				}
+				else if(!strcmp(tokens[0],"date")){
+					// 현재 작업 경로에 실행파일인 date를 가져오기 위한 경로 재설정
+					sprintf(local_path,"%s/%s",local_path,"mydate");
+					// 현재 작업 경로에 date 실행파일을 가져와서 명령어 실행
+					if(execl(local_path,"mydate",tokens[1],tokens[2],(char *)NULL) == -1){
+						perror("date");
+					}
+
+					printf("Child PID : %ld \n",(long)getpid());    // 자식 프로세스 PID 출력
+					printf("Child Exit\n");     // 자식 프로세스 종료 출력
+					exit(2); // 실행중인 현재 프로세스를 종료하는 시스템 콜 함수
+				}
+				else{
+					if(execvp(tokens[0],tokens) == -1){
+						perror("-bash: command not found");       // execvp() 에러 출력
+						exit(2);
+
+					}
+				}
+			}
+			else{
+				perror("Child Process falied \n");      // 프로세스 생성 실패 에러 출력
+				return -1;
+			}
+			
+		}
+	}
+
+	return 0;
 }
