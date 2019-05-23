@@ -337,7 +337,7 @@ int main()
 				}
 				else{
 					if(execvp(tokens[0],tokens) == -1){
-						perror("-bash: command not found");       // execvp() 에러 출력
+						printf("-bash: %s: command not found\n", tokens[0]);       // execvp() 에러 출력
 						exit(2);
 
 					}
