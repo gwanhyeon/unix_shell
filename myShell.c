@@ -112,32 +112,36 @@ void myecho(char ** argc){
 }
 // 기능5. mkdir 디렉터리 생성
 int mymkdir(int argc,char *argv[]){
-    
-    // 인자값의 수가 올바르지 않을경우 에러처리
-    if(argc!=2){
-        printf("Invalid number of arguments\n");
-        return 0;
-    }
-    // argv[1]에 지정된 디렉터리의 이름으로 생성 및 파일 접근권한 chmod 0775로 생성
-    if(!mkdir(argv[1],0775)){
-        printf("%s was created\n",argv[1]);
-    }else{ // 디렉터리 생성이 실패하였을 경우 에러 출력
-        perror("mkdir");
-    }
-    return 0;
+
+	// 인자값의 수가 올바르지 않을경우 에러처리
+	if(argc == 1){
+		printf("Invalid number of arguments\n");
+		return 0;
+	}else{		// 여러개 디렉터리 생성
+		while(argc != 0){
+			// argv[1]에 지정된 디렉터리의 이름으로 생성 및 파일 접근권한 chmod 0775로 생성
+			if(!mkdir(argv[argc],0775)){
+				//printf("%s was created\n",argv[argc]);
+			}
+			argc--;
+		}
+	}	
+	return 0;
 }
 // 기능6. mkdir 디렉터리 삭제
 int myrmdir(int argc,char *argv[]){
-    if(argc!=2){
-        printf("Invalid number\n");
-        return 0;
-    }
-    if(!rmdir(argv[1])){
-        printf("%s\n",argv[1]);
-    }else{
-        perror("rmdir");
-    }
-    return 0;
+	if(argc ==1){
+		printf("Invalid number\n");
+		return 0;
+	}else{		// 여러개 디렉터리 삭제
+		while(argc != 0){	
+			if(!rmdir(argv[argc])){
+				//printf("%s\n",argv[1]);
+			}
+			argc--;
+		}
+	}
+	return 0;
 }
 // 기능7. myhelp 프로그램 기능 설명
 int myhelp(char ** args){
@@ -272,7 +276,7 @@ int main()
 			if(childPid > 0) {
 
 				pid_t waitPid; // 기다리는 waitPid 생성
-				//printf("Parent PID : %ld, pid : %d %d \n",(long)getpid(),childPid, errno);
+				printf("Parent PID : %ld, pid : %d %d \n",(long)getpid(),childPid, errno);
 
 				// // 에러 발생시 명시적으로 처리하고, wait 함수를 재호출
 				while((((waitPid = wait(&status)) == -1) && errno == EINTR));
@@ -282,23 +286,24 @@ int main()
 				}
 				// 자식 프로세스 정상 종료WIFEXITED(statloc) 매크로가 true를 반환
 				if(WIFEXITED(status)) {
-					//printf("wait-Child Process Succeed(1) Exit %d\n",WEXITSTATUS(status));
+					printf("wait-Child Process Succeed(1) Exit %d\n",WEXITSTATUS(status));
 				}
 				// 자식 프로세스 비정상 종료 - WIFSIGNALED(statloc) 매크로가 true를 반환
 				else if(WIFSIGNALED(status)) {
-					//printf("wait-Child Process Faild(1) Exit %d\n",WTERMSIG(status));
+					printf("wait-Child Process Faild(1) Exit %d\n",WTERMSIG(status));
 				}
-				//printf("Parent Exit %d %d\n",waitPid,WTERMSIG(status));
+				printf("Parent Exit %d %d\n",waitPid,WTERMSIG(status));
 			}
 			// 자식프로세스 일 경우
 			else if(childPid == 0){
 
 				// 프로세스 실제로 자식 프로세스 생성 되서 점유하고 있는지 확인 하기 위함  주석
 				/*
-				for(int i=0;i<10;i++) {
+				for(int i=0;i<5;i++) {
 					sleep(1);
 				}
 				*/
+				
 				if(!strcmp(tokens[0],"cp")){
 					// 현재 작업 경로에 실행파일인 mycp를 가져오기 위한 경로 재설정
 					sprintf(local_path,"%s/%s",local_path,"mycp");
@@ -307,8 +312,8 @@ int main()
 						perror("execlp");
 					}
 
-					//printf("Child PID : %ld \n",(long)getpid());    // 자식 프로세스 PID 출력
-					//printf("Child Exit\n"); // 자식 프로세스 종료 출력
+					printf("Child PID : %ld \n",(long)getpid());    // 자식 프로세스 PID 출력
+					printf("Child Exit\n"); // 자식 프로세스 종료 출력
 					exit(2); // 실행중인 현재 프로세스를 종료하는 시스템 콜 함수
 				}
 				else if(!strcmp(tokens[0],"mv")){// $mymv 명령으로 인자가 들어온 경우
@@ -319,8 +324,8 @@ int main()
 						perror("execl");
 					}
 
-					//printf("Child PID : %ld \n",(long)getpid());    // 자식 프로세스 PID 출력
-					//printf("Child Exit\n"); // 자식 프로세스 종료 출력
+					printf("Child PID : %ld \n",(long)getpid());    // 자식 프로세스 PID 출력
+					printf("Child Exit\n"); // 자식 프로세스 종료 출력
 					exit(2); // 실행중인 현재 프로세스를 종료하는 시스템 콜 함수
 				}
 				else if(!strcmp(tokens[0],"date")){
@@ -331,8 +336,8 @@ int main()
 						perror("date");
 					}
 
-					//printf("Child PID : %ld \n",(long)getpid());    // 자식 프로세스 PID 출력
-					//printf("Child Exit\n");     // 자식 프로세스 종료 출력
+					printf("Child PID : %ld \n",(long)getpid());    // 자식 프로세스 PID 출력
+					printf("Child Exit\n");     // 자식 프로세스 종료 출력
 					exit(2); // 실행중인 현재 프로세스를 종료하는 시스템 콜 함수
 				}
 				else{
