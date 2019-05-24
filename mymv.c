@@ -10,23 +10,48 @@ int main(int argc,char *argv[])
 	if(argc==3){
 		//파일 접근 체크
 		if((access(argv[1],F_OK|W_OK))==0){
-			// 인자 경로값 저장
-			pathname = strcat(argv[2], argv[1]);
-			// 파일 이동 성공 확인
-			if(link(argv[1],argv[2])==0){
-				// 파일 unlink 처리
-				if((unlink(argv[1]))==0){
-					printf("%s succesfully moved to %s\n",argv[1],argv[2]);
+			
+			// 경로가 포함되어 있는 경우 파일 이동
+			if((strstr(argv[2],"/") || strstr(argv[2],"..") || strstr(argv[2],"../"))){
+				pathname = strcat(argv[2], argv[1]);
+				// 파일 이동 성공 확인
+				if(link(argv[1],argv[2])==0){
+					// 파일 unlink 처리
+					if((unlink(argv[1]))==0){
+
+						//printf("%s succesfully moved to %s\n",argv[1],argv[2]);
+					}
+					//파일 unlink 에러처리
+					else{
+
+						perror("Link deletion error");
+					}
 				}
-				//파일 unlink 에러처리
+				// 링크 생성 에러
 				else{
-					
-					perror("Link deletion error");
+					perror("Link creation error");
 				}
-			}
-			// 링크 생성 에러
-			else{
-				perror("Link creation error");
+			}else{
+				//pathname = strcat(argv[2], argv[1]);
+				// 파일 이동 성공 확인
+				if(link(argv[1],argv[2])==0){
+					// 파일 unlink 처리
+					if((unlink(argv[1]))==0){
+						//printf("%s succesfully rename to %s\n",argv[1],argv[2]);
+					}
+					//파일 unlink 에러처리
+					else{
+
+						perror("Link deletion error");
+					}
+				}
+				// 링크 생성 에러
+				else{
+					perror("Link creation error");
+				}
+
+
+
 			}
 		}
 		// 파일 에러
@@ -40,4 +65,4 @@ int main(int argc,char *argv[])
 	}
 
 
-}	
+}
