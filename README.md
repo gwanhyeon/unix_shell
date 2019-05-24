@@ -26,6 +26,12 @@ mkdir, rmdir 디렉터리 생성 및 삭제
 
 # How does it work?
 ## $gcc -o "object $file name" myShell.c
+## $./myShell
+or
+## $make 
+## $./myShell
+
+
 
 ```
 $mv
