@@ -21,11 +21,20 @@ Github: https://github.com/kgh940525/unix_shell
 #include <errno.h>      // Error 처리 라이브러리
 #define MAX 100         // MAX 상수
 
-
 // History 명령어 저장하기 위한 구조체
 typedef struct _HISTORY{
-	char log[MAX];
+    char log[MAX];
 }HISTORY;
+
+int mycd(int argc, char *argv[]);
+char* my_getcwd(char* user_name);
+int mypwd();
+void myecho(char ** argc);
+void myhistory(HISTORY *history,int history_cnt);
+int myhelp(char ** args);
+int mymkdir(int argc,char *argv[]);
+int myrmdir(int argc,char *argv[]);
+
 pid_t wait(int *statloc); // wait 자식프로세스 정상/비정상 종료 반환값 처리하기 위함.
 // 기능1. cd
 int mycd(int argc, char *argv[])
@@ -333,7 +342,6 @@ int main()
 					sprintf(local_path,"%s/%s",local_path,"mydate");
 					// 현재 작업 경로에 date 실행파일을 가져와서 명령어 실행
 					if(execl(local_path,"mydate",tokens[1],tokens[2],(char *)NULL) == -1){
-						printf("%s",local_path);
 						perror("mydate execl");
 					}
 
