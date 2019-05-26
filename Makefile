@@ -17,4 +17,4 @@ mydate:	mydate.c
 	$(CC) $(CFLAGS)	-o mydate mydate.c
 
 clean:
-	rm -f myShell mymv mycp mydate
+	rm -rf myShell mymv mycp mydate

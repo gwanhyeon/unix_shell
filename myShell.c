@@ -3,6 +3,7 @@
    Created by kgh(Gwan Hyeon Kim) on 23/05/2019.
    Copyright © 2019 kgh. All rights reserved.
 Github: https://github.com/kgh940525/unix_shell
+기능 cd,cp,mv,clear,help,mkdir,rmdir,etc..
  */
 
 #define _CRT_SECURE_NO_WARNINGS    // 입력 에러 처리 하기 위한 정의
